@@ -99,7 +99,8 @@ dist
 
 # vuepress build output
 .vuepress/dist
-
+client_secret*
+contacts*
 # vuepress v2.x temp and cache directory
 .temp
 .cache
