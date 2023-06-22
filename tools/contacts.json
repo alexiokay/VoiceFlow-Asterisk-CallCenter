@@ -1,0 +1,19 @@
+{
+  "contacts": [
+    {
+      "name": "John Doe",
+      "phone": "+48428813669",
+      "words": ["One", "1", "1.", "Sun"]
+    },
+    {
+      "name": "Jane Smith",
+      "phone": "+48428813669",
+      "words": ["Jane", "Smith", "Colleague"]
+    },
+    {
+      "name": "Alice Johnson",
+      "phone": "+48428813669",
+      "words": ["Alice", "Johnson", "Family"]
+    }
+  ]
+}

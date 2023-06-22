@@ -1,0 +1,26 @@
+{
+  "name": "ari-stasi-server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@aws-sdk/client-transcribe-streaming": "^3.354.0",
+    "@google-cloud/speech": "^5.5.0",
+    "ari-client": "^1.2.0",
+    "aws-sdk": "^2.1399.0",
+    "aws-transcribe": "^1.1.1",
+    "express": "^4.18.2",
+    "request": "^2.88.2",
+    "requests": "^0.3.0",
+    "socket.io": "^4.6.2",
+    "ws": "^8.13.0"
+  },
+  "devDependencies": {
+    "@types/ws": "^8.5.5"
+  }
+}
