@@ -57,6 +57,7 @@ var server = require("http").createServer(app);
 var ari = require("ari-client");
 var EventEmitter = require("events");
 var WebSocket = require("ws");
+var moment = require("moment");
 var AriControllerServer = /** @class */ (function (_super) {
     __extends(AriControllerServer, _super);
     function AriControllerServer(pbxIP, accessKey, secretKey) {
@@ -220,9 +221,6 @@ var AriControllerServer = /** @class */ (function (_super) {
                         if (!dialed) return [3 /*break*/, 2];
                         // if the channel is outgoing, play a welcome message after is answered
                         console.log(dialed ? "this channel is dialed" : "this channel is incoming");
-                        this.playAudio(channel, "custom/welcome_2");
-                        setTimeout(function () { }, 2000);
-                        this.playAudio(channel, "beep");
                         this.addChannelToBridge(channel);
                         return [3 /*break*/, 6];
                     case 2:
@@ -261,7 +259,12 @@ var AriControllerServer = /** @class */ (function (_super) {
                                     if (foundNumber === "no-match") {
                                         noMatchCount++;
                                         _this.playAudio(channel, "beep");
-                                        if (noMatchCount === 10) {
+                                        if (noMatchCount === 3 ||
+                                            noMatchCount === 6 ||
+                                            noMatchCount === 9) {
+                                            _this.playAudio(channel, "custom/try_again");
+                                        }
+                                        else if (noMatchCount === 12) {
                                             console.log("no match 3 times, hangup the call");
                                             // hangup the call
                                             channel.hangup();
@@ -283,33 +286,76 @@ var AriControllerServer = /** @class */ (function (_super) {
         });
     };
     AriControllerServer.prototype.initiateOutgoingCall = function (dialingChannel, recipent) {
-        var fromNumber = "+48732059465"; // Twilio
-        var fromNumber2 = "+31857603963"; // Hallo
-        var fromNumber3 = "+48326305144"; // Voim.ms
-        var magda = "+48518811205";
-        var gajuk = "+48690007602";
-        var testPhone = "+48428813669"; // Voip.ms Bria
-        var testPhone2 = "+3197010253339"; // Twilio
-        var sipProvider = "alexispace@freshandtidy.pstn.twilio.com";
-        var outgoingChannelParams = {
-            endpoint: "Local/".concat(recipent, "@from-internal"),
-            app: "hello-world",
-            callerId: fromNumber3,
-            appArgs: "dialed",
-            headers: {
-                "X-Custom-Caller-ID": fromNumber3,
-                "X-Custom-Recipient": recipent,
-                // Add more headers if needed
-            },
-        };
-        this.client.channels.originate(outgoingChannelParams, function (err, channel) {
-            // save the channel id so we can control it later on StasisStart
-            if (err) {
-                console.error("Error initiating outgoing call:", err);
-                return;
-            }
-            //this.addChannelToBridge(channel);
-            console.log("Outgoing call initiated successfully");
+        return __awaiter(this, void 0, void 0, function () {
+            var fromNumber, fromNumber2, fromNumber3, magda, gajuk, testPhone, testPhone2, sipProvider, outgoingChannelParams, ringingPlayback;
+            var _this = this;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        fromNumber = "+48732059465";
+                        fromNumber2 = "+31857603963";
+                        fromNumber3 = "+48326305144";
+                        magda = "+48518811205";
+                        gajuk = "+48690007602";
+                        testPhone = "+48428813669";
+                        testPhone2 = "+3197010253339";
+                        sipProvider = "alexispace@freshandtidy.pstn.twilio.com";
+                        outgoingChannelParams = {
+                            endpoint: "Local/".concat(recipent, "@from-internal"),
+                            app: "hello-world",
+                            callerId: fromNumber3,
+                            appArgs: "dialed",
+                            headers: {
+                                "X-Custom-Caller-ID": fromNumber3,
+                                "X-Custom-Recipient": recipent,
+                                // Add more headers if needed
+                            },
+                        };
+                        dialingChannel.play({ media: "tone:ring;tonezone=fr" }, function (err, newPlayback) {
+                            if (err) {
+                                throw err;
+                            }
+                            ringingPlayback = newPlayback;
+                        });
+                        return [4 /*yield*/, this.client.channels.originate(outgoingChannelParams, function (err, channel) {
+                                // save the channel id so we can control it later on StasisStart
+                                if (err) {
+                                    console.error("Error initiating outgoing call:", err);
+                                    return;
+                                }
+                                channel.on("StasisStart", function (event, channel) {
+                                    channel.play({ media: "sound:custom/welcome_2" }, function (err, playback) {
+                                        if (err) {
+                                            console.error("Error playing ringing tone:", err);
+                                            return;
+                                        }
+                                        playback.once("PlaybackFinished", function (completedPlayback) {
+                                            console.log("Ringing tone playback finished");
+                                            ringingPlayback.stop();
+                                        });
+                                    });
+                                    setTimeout(function () { }, 2000);
+                                    _this.playAudio(channel, "beep");
+                                });
+                                // Store the call start time
+                                var callStartTime = moment().format("YYYY-MM-DD HH:mm:ss");
+                                //this.addChannelToBridge(channel);
+                                console.log("Outgoing call initiated successfully");
+                                // Register the call usage after the call ends
+                                channel.on("StasisEnd", function (event, channel) {
+                                    var callEndTime = moment()
+                                        .add(1, "hour")
+                                        .format("YYYY-MM-DD HH:mm:ss");
+                                    var date = new Date().toISOString().split("T")[0];
+                                    // Register outgoing call usage
+                                    _this.registerOutgoingCallUsage(fromNumber3, recipent, callStartTime, callEndTime, date);
+                                });
+                            })];
+                    case 1:
+                        _a.sent();
+                        return [2 /*return*/];
+                }
+            });
         });
     };
     AriControllerServer.prototype.stasisEnd = function (event, channel) {
@@ -388,38 +434,81 @@ var AriControllerServer = /** @class */ (function (_super) {
             console.log("User: " + channel.name);
         });
     };
+    /**
+     * Finds a phone number based on matching words in a given text.
+     * @param {string} searchWords - The text to search for matching words.
+     * @returns {string} - The matched phone number, or "no-match" if no match is found.
+     */
     AriControllerServer.prototype.findNumberByWords = function (searchWords) {
         var foundNumber = "no-match";
-        var searchWordList = searchWords.toLowerCase().split(" ");
-        var _loop_1 = function (contact) {
+        // Split the search words into an array and remove empty strings
+        var searchWordList = searchWords
+            .toLowerCase()
+            .split(" ")
+            .filter(function (word) { return word !== ""; });
+        // Iterate over each contact to find a match
+        for (var _i = 0, _a = this.contacts.contacts; _i < _a.length; _i++) {
+            var contact = _a[_i];
             var name_1 = contact.name, phone = contact.phone, words = contact.words;
-            var lowercaseName = name_1.toLowerCase();
-            var matchFound = searchWordList.some(function (word) {
-                var regex = new RegExp("\\b".concat(word, "\\b"), "i");
-                return (lowercaseName.match(regex) ||
-                    words.some(function (contactWord) { return contactWord.match(regex); }));
+            console.log("name: ", name_1);
+            console.log("phone: ", phone);
+            console.log("words: ", words);
+            console.log("searchWordList: ", searchWordList);
+            // Check if any word in the contact's words matches any word in the search word list
+            var matchFound = words.some(function (contactWord) {
+                // Find the matched word in the search word list
+                var matchedWord = searchWordList.find(function (word) {
+                    return contactWord.toLowerCase().includes(word);
+                });
+                if (matchedWord) {
+                    console.log("Matched word: ".concat(matchedWord));
+                    return true; // Exit the loop once a match is found
+                }
+                return false;
             });
             if (matchFound) {
                 foundNumber = phone;
-                return "break";
+                break; // Exit the loop once a match is found
             }
-        };
-        for (var _i = 0, _a = this.contacts.contacts; _i < _a.length; _i++) {
-            var contact = _a[_i];
-            var state_1 = _loop_1(contact);
-            if (state_1 === "break")
-                break;
         }
         return foundNumber;
     };
-    // Function to escape special characters in a string
-    AriControllerServer.prototype.escapeRegExp = function (string) {
-        return string.replace(/[.*+\-?^${}()|[\]\\]/g, "\\$&");
+    AriControllerServer.prototype.registerOutgoingCallUsage = function (fromNumber, recipent, callStartTime, callEndTime, date) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                console.log("callStartTime: ", callStartTime);
+                console.log("callEndTime: ", callEndTime);
+                console.log("phoneNumber: ", fromNumber);
+                console.log("recipent: ", recipent);
+                fetch("http://127.0.0.1:8001/api/v1/call-usage/", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        start_time: callStartTime,
+                        end_time: callEndTime,
+                        from_number: fromNumber,
+                        recipent: recipent,
+                        date: date,
+                    }),
+                })
+                    .then(function (response) { return response.json(); })
+                    .then(function (data) {
+                    console.log("Success:", data);
+                })
+                    .catch(function (error) {
+                    console.error("Error:", error);
+                });
+                return [2 /*return*/];
+            });
+        });
     };
     AriControllerServer.prototype.close = function () {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 this.activeChannels.clear();
+                //this.closeAllChannels();
                 this.emit("close");
                 return [2 /*return*/];
             });

@@ -5,7 +5,7 @@ const server = require("http").createServer(app);
 const ari = require("ari-client");
 const EventEmitter = require("events");
 const WebSocket = require("ws");
-
+const moment = require("moment");
 class AriControllerServer extends EventEmitter {
   constructor(pbxIP, accessKey, secretKey) {
     super();
@@ -160,10 +160,6 @@ class AriControllerServer extends EventEmitter {
       console.log(
         dialed ? "this channel is dialed" : "this channel is incoming"
       );
-      this.playAudio(channel, "custom/welcome_2");
-
-      setTimeout(() => {}, 2000);
-      this.playAudio(channel, "beep");
 
       this.addChannelToBridge(channel);
     } else if (channel.id == this.externalMediaChannelId) {
@@ -203,7 +199,13 @@ class AriControllerServer extends EventEmitter {
               noMatchCount++;
               this.playAudio(channel, "beep");
 
-              if (noMatchCount === 10) {
+              if (
+                noMatchCount === 3 ||
+                noMatchCount === 6 ||
+                noMatchCount === 9
+              ) {
+                this.playAudio(channel, "custom/try_again");
+              } else if (noMatchCount === 12) {
                 console.log("no match 3 times, hangup the call");
                 // hangup the call
                 channel.hangup();
@@ -220,7 +222,7 @@ class AriControllerServer extends EventEmitter {
     }
   }
 
-  initiateOutgoingCall(dialingChannel, recipent) {
+  async initiateOutgoingCall(dialingChannel, recipent) {
     const fromNumber = "+48732059465"; // Twilio
     const fromNumber2 = "+31857603963"; // Hallo
     const fromNumber3 = "+48326305144"; // Voim.ms
@@ -243,15 +245,67 @@ class AriControllerServer extends EventEmitter {
       },
     };
 
-    this.client.channels.originate(outgoingChannelParams, (err, channel) => {
-      // save the channel id so we can control it later on StasisStart
-      if (err) {
-        console.error("Error initiating outgoing call:", err);
-        return;
+    let ringingPlayback;
+    dialingChannel.play(
+      { media: "tone:ring;tonezone=fr" },
+      (err, newPlayback) => {
+        if (err) {
+          throw err;
+        }
+        ringingPlayback = newPlayback;
       }
-      //this.addChannelToBridge(channel);
-      console.log("Outgoing call initiated successfully");
-    });
+    );
+
+    await this.client.channels.originate(
+      outgoingChannelParams,
+      (err, channel) => {
+        // save the channel id so we can control it later on StasisStart
+        if (err) {
+          console.error("Error initiating outgoing call:", err);
+          return;
+        }
+
+        channel.on("StasisStart", (event, channel) => {
+          channel.play({ media: "sound:custom/welcome_2" }, (err, playback) => {
+            if (err) {
+              console.error("Error playing ringing tone:", err);
+              return;
+            }
+
+            playback.once("PlaybackFinished", (completedPlayback) => {
+              console.log("Ringing tone playback finished");
+              ringingPlayback.stop();
+            });
+          });
+
+          setTimeout(() => {}, 2000);
+          this.playAudio(channel, "beep");
+        });
+
+        // Store the call start time
+        const callStartTime = moment().format("YYYY-MM-DD HH:mm:ss");
+        //this.addChannelToBridge(channel);
+        console.log("Outgoing call initiated successfully");
+
+        // Register the call usage after the call ends
+        channel.on("StasisEnd", (event, channel) => {
+          const callEndTime = moment()
+            .add(1, "hour")
+            .format("YYYY-MM-DD HH:mm:ss");
+
+          const date = new Date().toISOString().split("T")[0];
+
+          // Register outgoing call usage
+          this.registerOutgoingCallUsage(
+            fromNumber3,
+            recipent,
+            callStartTime,
+            callEndTime,
+            date
+          );
+        });
+      }
+    );
   }
 
   stasisEnd(event, channel) {
@@ -324,22 +378,40 @@ class AriControllerServer extends EventEmitter {
     });
   }
 
+  /**
+   * Finds a phone number based on matching words in a given text.
+   * @param {string} searchWords - The text to search for matching words.
+   * @returns {string} - The matched phone number, or "no-match" if no match is found.
+   */
   findNumberByWords(searchWords) {
     let foundNumber = "no-match";
 
-    const searchWordList = searchWords.toLowerCase().split(" ");
+    // Split the search words into an array and remove empty strings
+    const searchWordList = searchWords
+      .toLowerCase()
+      .split(" ")
+      .filter((word) => word !== "");
 
+    // Iterate over each contact to find a match
     for (const contact of this.contacts.contacts) {
       const { name, phone, words } = contact;
+      console.log("name: ", name);
+      console.log("phone: ", phone);
+      console.log("words: ", words);
+      console.log("searchWordList: ", searchWordList);
 
-      const lowercaseName = name.toLowerCase();
-
-      const matchFound = searchWordList.some((word) => {
-        const regex = new RegExp(`\\b${word}\\b`, "i");
-        return (
-          lowercaseName.match(regex) ||
-          words.some((contactWord) => contactWord.match(regex))
+      // Check if any word in the contact's words matches any word in the search word list
+      const matchFound = words.some((contactWord) => {
+        // Find the matched word in the search word list
+        const matchedWord = searchWordList.find((word) =>
+          contactWord.toLowerCase().includes(word)
         );
+
+        if (matchedWord) {
+          console.log(`Matched word: ${matchedWord}`);
+          return true; // Exit the loop once a match is found
+        }
+        return false;
       });
 
       if (matchFound) {
@@ -351,13 +423,43 @@ class AriControllerServer extends EventEmitter {
     return foundNumber;
   }
 
-  // Function to escape special characters in a string
-  escapeRegExp(string) {
-    return string.replace(/[.*+\-?^${}()|[\]\\]/g, "\\$&");
+  async registerOutgoingCallUsage(
+    fromNumber,
+    recipent,
+    callStartTime,
+    callEndTime,
+    date
+  ) {
+    console.log("callStartTime: ", callStartTime);
+    console.log("callEndTime: ", callEndTime);
+    console.log("phoneNumber: ", fromNumber);
+    console.log("recipent: ", recipent);
+
+    fetch("http://127.0.0.1:8001/api/v1/call-usage/", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        start_time: callStartTime,
+        end_time: callEndTime,
+        from_number: fromNumber,
+        recipent: recipent,
+        date: date,
+      }),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        console.log("Success:", data);
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      });
   }
 
   async close() {
     this.activeChannels.clear();
+    //this.closeAllChannels();
     this.emit("close");
   }
 }
