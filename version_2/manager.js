@@ -37,6 +37,9 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 var _a = require("./AriTranscriberServer"), AriTranscriber = _a.AriTranscriber, AriTranscriberOptions = _a.AriTranscriberOptions;
 var fs = require("fs");
+var path = require("path");
+require("dotenv").config({ path: path.resolve(__dirname, "../.env") });
+console.log("Hello, world!");
 //? ---------------- Convert JSON file to hash map ----------------
 function convertJSONFileToHashMap(filePath) {
     try {
@@ -68,18 +71,18 @@ var AriControllerServer = require("./AriControllerServer").AriControllerServer;
 var options = {
     sslCert: "",
     sslKey: "path/to/ssl/private/key.key",
-    wssPort: 3044,
+    wssPort: process.env.WSS_PORT,
     format: "ulaw",
     speechLang: "en-US",
     speechModel: "default",
     speakerDiarization: false,
-    listenServer: "0.0.0.0:8000",
+    listenServer: process.env.LISTENER_SERVER,
     audioOutput: "audio.raw",
 };
 // Create an instance of AriTranscriber with the provided options
 var transcriber = new AriTranscriber(options);
 // Create an instance of AriControllerServer
-var pbxIP = "45.32.239.133";
+var pbxIP = process.env.PBX_IP;
 var accessKey = "ACCESS KEY HERE";
 var secretKey = "SECRET KEY HERE";
 var controller = new AriControllerServer(pbxIP, accessKey, secretKey);

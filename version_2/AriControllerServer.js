@@ -58,6 +58,8 @@ var ari = require("ari-client");
 var EventEmitter = require("events");
 var WebSocket = require("ws");
 var moment = require("moment");
+var path = require("path");
+require("dotenv").config({ path: path.resolve(__dirname, "../.env") });
 var AriControllerServer = /** @class */ (function (_super) {
     __extends(AriControllerServer, _super);
     function AriControllerServer(pbxIP, accessKey, secretKey) {
@@ -292,14 +294,14 @@ var AriControllerServer = /** @class */ (function (_super) {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        fromNumber = "+48732059465";
-                        fromNumber2 = "+31857603963";
-                        fromNumber3 = "+48326305144";
-                        magda = "+48518811205";
-                        gajuk = "+48690007602";
-                        testPhone = "+48428813669";
-                        testPhone2 = "+3197010253339";
-                        sipProvider = "alexispace@freshandtidy.pstn.twilio.com";
+                        fromNumber = process.env.FROM_NUMBER;
+                        fromNumber2 = process.env.FROM_NUMBER2;
+                        fromNumber3 = process.env.FROM_NUMBER3;
+                        magda = process.env.MAGDA;
+                        gajuk = process.env.GAJUK;
+                        testPhone = process.env.TEST_PHONE;
+                        testPhone2 = process.env.TEST_PHONE2;
+                        sipProvider = process.env.SIP_PROVIDER;
                         outgoingChannelParams = {
                             endpoint: "Local/".concat(recipent, "@from-internal"),
                             app: "hello-world",
@@ -332,10 +334,10 @@ var AriControllerServer = /** @class */ (function (_super) {
                                         playback.once("PlaybackFinished", function (completedPlayback) {
                                             console.log("Ringing tone playback finished");
                                             ringingPlayback.stop();
+                                            setTimeout(function () { }, 2000);
+                                            _this.playAudio(channel, "beep");
                                         });
                                     });
-                                    setTimeout(function () { }, 2000);
-                                    _this.playAudio(channel, "beep");
                                 });
                                 // Store the call start time
                                 var callStartTime = moment().format("YYYY-MM-DD HH:mm:ss");
@@ -376,10 +378,10 @@ var AriControllerServer = /** @class */ (function (_super) {
                     case 0:
                         ariEndpoint = "http://".concat(this.pbxIP, ":8088/ari");
                         appName = "hello-world";
-                        externalHost = "84.29.2.193";
+                        externalHost = process.env.EXTERNAL_HOST;
                         format = "ulaw";
-                        username = "asterisk";
-                        password = "asterisk";
+                        username = process.env.ASTERISK_LOGIN;
+                        password = process.env.ASTERISK_PASSWORD;
                         port = 8000;
                         url = "".concat(ariEndpoint, "/channels/externalMedia?app=").concat(appName, "&external_host=").concat(externalHost, "%3A").concat(8000, "&format=").concat(format);
                         _a.label = 1;
@@ -446,6 +448,10 @@ var AriControllerServer = /** @class */ (function (_super) {
             .toLowerCase()
             .split(" ")
             .filter(function (word) { return word !== ""; });
+        // delete dot from the last word
+        var cleanedSearchWordList = searchWordList.map(function (word) {
+            return word.replaceAll(".", "");
+        });
         // Iterate over each contact to find a match
         for (var _i = 0, _a = this.contacts.contacts; _i < _a.length; _i++) {
             var contact = _a[_i];
@@ -453,11 +459,12 @@ var AriControllerServer = /** @class */ (function (_super) {
             console.log("name: ", name_1);
             console.log("phone: ", phone);
             console.log("words: ", words);
-            console.log("searchWordList: ", searchWordList);
+            console.log("searchWordList: ", cleanedSearchWordList);
+            console.log("test: ");
             // Check if any word in the contact's words matches any word in the search word list
             var matchFound = words.some(function (contactWord) {
                 // Find the matched word in the search word list
-                var matchedWord = searchWordList.find(function (word) {
+                var matchedWord = cleanedSearchWordList.find(function (word) {
                     return contactWord.toLowerCase().includes(word);
                 });
                 if (matchedWord) {
@@ -517,7 +524,7 @@ var AriControllerServer = /** @class */ (function (_super) {
     return AriControllerServer;
 }(EventEmitter));
 // Usage:
-// const pbxIP = "45.32.239.133";
+// const pbxIP = IP;
 // const accessKey = "ACCESS KEY HERE";
 // const secretKey = "SECRET KEY HERE";
 // const speechServer = new AriControllerServer(pbxIP, accessKey, secretKey);

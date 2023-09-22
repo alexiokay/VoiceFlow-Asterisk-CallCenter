@@ -6,6 +6,10 @@ const ari = require("ari-client");
 const EventEmitter = require("events");
 const WebSocket = require("ws");
 const moment = require("moment");
+
+const path = require("path");
+require("dotenv").config({ path: path.resolve(__dirname, "../.env") });
+
 class AriControllerServer extends EventEmitter {
   constructor(pbxIP, accessKey, secretKey) {
     super();
@@ -223,14 +227,14 @@ class AriControllerServer extends EventEmitter {
   }
 
   async initiateOutgoingCall(dialingChannel, recipent) {
-    const fromNumber = "+48732059465"; // Twilio
-    const fromNumber2 = "+31857603963"; // Hallo
-    const fromNumber3 = "+48326305144"; // Voim.ms
-    const magda = "+48518811205";
-    const gajuk = "+48690007602";
-    const testPhone = "+48428813669"; // Voip.ms Bria
-    const testPhone2 = "+3197010253339"; // Twilio
-    const sipProvider = "alexispace@freshandtidy.pstn.twilio.com";
+    const fromNumber = process.env.FROM_NUMBER; // Twilio
+    const fromNumber2 = process.env.FROM_NUMBER2; // Hallo
+    const fromNumber3 = process.env.FROM_NUMBER3; // Voim.ms
+    const magda = process.env.MAGDA;
+    const gajuk = process.env.GAJUK;
+    const testPhone = process.env.TEST_PHONE; // Voip.ms Bria
+    const testPhone2 = process.env.TEST_PHONE2; // Twilio
+    const sipProvider = process.env.SIP_PROVIDER;
 
     const outgoingChannelParams = {
       endpoint: `Local/${recipent}@from-internal`,
@@ -275,11 +279,10 @@ class AriControllerServer extends EventEmitter {
             playback.once("PlaybackFinished", (completedPlayback) => {
               console.log("Ringing tone playback finished");
               ringingPlayback.stop();
+              setTimeout(() => {}, 2000);
+              this.playAudio(channel, "beep");
             });
           });
-
-          setTimeout(() => {}, 2000);
-          this.playAudio(channel, "beep");
         });
 
         // Store the call start time
@@ -325,10 +328,10 @@ class AriControllerServer extends EventEmitter {
   async createExternalMediaChannel() {
     const ariEndpoint = `http://${this.pbxIP}:8088/ari`;
     const appName = "hello-world";
-    const externalHost = `84.29.2.193`;
+    const externalHost = process.env.EXTERNAL_HOST;
     const format = "ulaw";
-    const username = "asterisk";
-    const password = "asterisk";
+    const username = process.env.ASTERISK_LOGIN;
+    const password = process.env.ASTERISK_PASSWORD;
     const port = 8000;
 
     const url = `${ariEndpoint}/channels/externalMedia?app=${appName}&external_host=${externalHost}%3A${8000}&format=${format}`;
@@ -391,6 +394,10 @@ class AriControllerServer extends EventEmitter {
       .toLowerCase()
       .split(" ")
       .filter((word) => word !== "");
+    // delete dot from the last word
+    const cleanedSearchWordList = searchWordList.map((word) =>
+      word.replaceAll(".", "")
+    );
 
     // Iterate over each contact to find a match
     for (const contact of this.contacts.contacts) {
@@ -398,12 +405,13 @@ class AriControllerServer extends EventEmitter {
       console.log("name: ", name);
       console.log("phone: ", phone);
       console.log("words: ", words);
-      console.log("searchWordList: ", searchWordList);
+      console.log("searchWordList: ", cleanedSearchWordList);
+      console.log("test: ");
 
       // Check if any word in the contact's words matches any word in the search word list
       const matchFound = words.some((contactWord) => {
         // Find the matched word in the search word list
-        const matchedWord = searchWordList.find((word) =>
+        const matchedWord = cleanedSearchWordList.find((word) =>
           contactWord.toLowerCase().includes(word)
         );
 
@@ -465,7 +473,7 @@ class AriControllerServer extends EventEmitter {
 }
 
 // Usage:
-// const pbxIP = "45.32.239.133";
+// const pbxIP = IP;
 // const accessKey = "ACCESS KEY HERE";
 // const secretKey = "SECRET KEY HERE";
 
