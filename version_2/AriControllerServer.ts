@@ -64,14 +64,19 @@ class AriControllerServer extends EventEmitter {
     return new Promise((resolve, reject) => {
       const ariEndpoint = `http://${this.pbxIP}:8088`;
 
-      ari.connect(ariEndpoint, "asterisk", "asterisk", (err, client) => {
-        if (err) {
-          reject(err);
-        } else {
-          this.client = client;
-          resolve();
+      ari.connect(
+        ariEndpoint,
+        process.env.ASTERISK_LOGIN,
+        process.env.ASTERISK_PASSWORD,
+        (err, client) => {
+          if (err) {
+            reject(err);
+          } else {
+            this.client = client;
+            resolve();
+          }
         }
-      });
+      );
     });
   }
 
