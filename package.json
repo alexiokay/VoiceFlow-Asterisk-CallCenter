@@ -11,7 +11,7 @@
     "start": "nvm use && npx ts-node -T core/manager.ts",
     "dev": "nvm use && npm run watch"
   },
-  "author": "",
+  "author": "Alexi Pawelec",
   "license": "MIT",
   "dependencies": {
     "@aws-sdk/client-transcribe-streaming": "^3.354.0",
