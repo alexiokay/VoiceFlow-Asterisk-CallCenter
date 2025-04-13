@@ -1,4 +1,3 @@
-
 /**
  * This application demonstrates how to perform infinite streaming using the
  * streamingRecognize operation with the Google Cloud Speech API.
@@ -30,14 +29,13 @@
  * just the transcribed text, and resultsCallback whic provides the
  * full results structure. 
  */
-
-const chalk = require('chalk');
-const {Transform} = require('stream');
-const speech = require('@google-cloud/speech').v1p1beta1;
+import chalk from 'chalk';
+import { Transform } from 'stream';
+import { SpeechClient } from '@google-cloud/speech';
 
 class GoogleSpeechProvider {
 	constructor(config, socket, transcriptCallback, resultsCallback) {
-		this.speechClient = new speech.SpeechClient();
+		this.speechClient = new SpeechClient();
 		this.request = {
 		    config,
 		    interimResults: true,
@@ -199,4 +197,5 @@ class GoogleSpeechProvider {
 	}
 }
 
-module.exports.GoogleSpeechProvider = GoogleSpeechProvider; 
+export { GoogleSpeechProvider }; 
+

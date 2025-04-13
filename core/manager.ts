@@ -10,7 +10,7 @@ require("dotenv").config({ path: path.resolve(__dirname, "../.env") });
 console.log("Hello, world!");
 
 //? ---------------- Convert JSON file to hash map ----------------
-function convertJSONFileToHashMap(filePath) {
+function convertJSONFileToHashMap(filePath: any) {
   try {
     // Read the JSON file content
     const fileContent = fs.readFileSync(filePath, "utf8");
@@ -19,7 +19,7 @@ function convertJSONFileToHashMap(filePath) {
     const jsonObject = JSON.parse(fileContent);
 
     // Create a new hash map
-    const hashMap = {};
+    const hashMap: any = {};
 
     // Iterate over the properties of the parsed object
     for (const key in jsonObject) {
@@ -36,7 +36,7 @@ function convertJSONFileToHashMap(filePath) {
   }
 }
 
-const jsonFilePath = "../tools/contacts.json";
+const jsonFilePath = "./tools/contacts.json";
 const contacts = convertJSONFileToHashMap(jsonFilePath);
 console.log("Contacts:", contacts);
 

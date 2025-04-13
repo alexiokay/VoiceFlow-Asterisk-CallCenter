@@ -1,0 +1,20 @@
+{
+    "contacts": [
+      {
+        "name": "John Doe",
+        "phone": "+48444444444",
+        "words": ["One", "1", "1.", "Sun", "Amsterdam"]
+      },
+      {
+        "name": "Jane Smith",
+        "phone": "+48444444444",
+        "words": ["Venlo"]
+      },
+      {
+        "name": "Alice Johnson",
+        "phone": "+31444444444",
+        "words": ["Alice", "Johnson", "Family"]
+      }
+    ]
+  }
+  

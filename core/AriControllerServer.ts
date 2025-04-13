@@ -62,7 +62,7 @@ class AriControllerServer extends EventEmitter {
 
   async connectARI() {
     return new Promise((resolve, reject) => {
-      const ariEndpoint = `http://${this.pbxIP}:8088`;
+      const ariEndpoint = `http://${this.pbxIP}:8088`; //:8088 
 
       ari.connect(
         ariEndpoint,
@@ -232,23 +232,22 @@ class AriControllerServer extends EventEmitter {
   }
 
   async initiateOutgoingCall(dialingChannel, recipent) {
-    const fromNumber = process.env.FROM_NUMBER; // Twilio
-    const fromNumber2 = process.env.FROM_NUMBER2; // Hallo
-    const fromNumber3 = process.env.FROM_NUMBER3; // Voim.ms
-    const magda = process.env.MAGDA;
-    const gajuk = process.env.GAJUK;
-    const testPhone = process.env.TEST_PHONE; // Voip.ms Bria
-    const testPhone2 = process.env.TEST_PHONE2; // Twilio
+    const fromNumber = process.env.FROM_NUMBER; // Twilio / Hallo
+    const fromNumber2 = process.env.FROM_NUMBER2; // Voip.ms
+    const exampleCallToNumber1 = process.env.EXAMPLE_CALL_TO_NUMBER1;
+    const exampleCallToNumber2 = process.env.EXAMPLE_CALL_TO_NUMBER2;
+    const testPhone = process.env.TEST_PHONE; // Voip.ms Bria +48
+    const testPhone2 = process.env.TEST_PHONE2; // Twilio +31
     const sipProvider = process.env.SIP_PROVIDER;
 
     const outgoingChannelParams = {
       endpoint: `Local/${recipent}@from-internal`,
       app: "hello-world",
 
-      callerId: fromNumber3,
+      callerId: fromNumber,
       appArgs: "dialed",
       headers: {
-        "X-Custom-Caller-ID": fromNumber3,
+        "X-Custom-Caller-ID": fromNumber,
         "X-Custom-Recipient": recipent,
         // Add more headers if needed
       },
@@ -305,7 +304,7 @@ class AriControllerServer extends EventEmitter {
 
           // Register outgoing call usage
           this.registerOutgoingCallUsage(
-            fromNumber3,
+            fromNumber,
             recipent,
             callStartTime,
             callEndTime,
@@ -331,7 +330,7 @@ class AriControllerServer extends EventEmitter {
   }
 
   async createExternalMediaChannel() {
-    const ariEndpoint = `http://${this.pbxIP}:8088/ari`;
+    const ariEndpoint = `http://${this.pbxIP}:8088/ari`; // :8088/ari 
     const appName = "hello-world";
     const externalHost = process.env.EXTERNAL_HOST;
     const format = "ulaw";
