@@ -7,7 +7,7 @@
 
 <p align="center">
   <!-- Replace with your own logo when available -->
-  <img src="./header.webp" alt="VoiceFlow Logo" height="300" width="100%" />
+  <img src="./header.webp" alt="VoiceFlow Logo" width="100%" />
   <br>
   <em><a href="https://asterisk.org"><img src="https://asterisk.org/wp-content/uploads/asterisk-logo.png" alt="Asterisk" width="50" style="vertical-align: middle;"/></a>-powered telephony management with speech recognition and transcription</em>
 </p>
