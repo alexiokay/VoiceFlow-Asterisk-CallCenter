@@ -1,11 +1,11 @@
 # 🛠️ FreePBX Server Installation and Configuration Guide
 
 [![Debian](https://img.shields.io/badge/Debian-12-purple.svg)](https://www.debian.org/)
-[![FreePBX](https://img.shields.io/badge/FreePBX-16-orange.svg)](https://www.freepbx.org/)
+[![FreePBX](https://img.shields.io/badge/FreePBX-17-orange.svg)](https://www.freepbx.org/)
 [![Asterisk](https://img.shields.io/badge/Asterisk-20-red.svg)](https://www.asterisk.org/)
 
 <div align="center">
-  <img src="https://www.freepbx.org/wp-content/uploads/2022/06/FreePBX_color-1-e1659727659502.png" alt="FreePBX Logo" width="300"/>
+  <img src="https://www.freepbx.org/wp-content/uploads/Sangoma_FreePBX_Logo_RGB_hori-pos-e1588854523908.png" alt="FreePBX Logo" width="300"/>
   <br>
   <em>Complete guide to setting up and configuring your FreePBX server for use with ARI Stasi</em>
 </div>

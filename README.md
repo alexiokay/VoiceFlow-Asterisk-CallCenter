@@ -1,21 +1,22 @@
-# 📞 ARI Stasi Server - PBX Management System
+# 📞 VoiceFlow (ARI Stasi Server)
 
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.8.3-blue.svg)](https://www.typescriptlang.org/)
 [![Node.js](https://img.shields.io/badge/Node.js-23.x-green.svg)](https://nodejs.org/)
 [![Asterisk](https://img.shields.io/badge/Asterisk-ARI-red.svg)](https://wiki.asterisk.org/wiki/display/AST/Asterisk+REST+Interface+(ARI))
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-<div align="center">
-  <img src="https://asterisk.org/wp-content/uploads/asterisk-logo.png" alt="Asterisk Logo" width="200"/>
+<p align="center">
+  <!-- Replace with your own logo when available -->
+  <img src="./header.webp" alt="VoiceFlow Logo" height="300" width="100%" />
   <br>
-  <em>Modern telephony management with speech recognition and WebSocket integration</em>
-</div>
+  <em><a href="https://asterisk.org"><img src="https://asterisk.org/wp-content/uploads/asterisk-logo.png" alt="Asterisk" width="50" style="vertical-align: middle;"/></a>-powered telephony management with speech recognition and transcription</em>
+</p>
 
 ---
 
 ## 📋 Overview
 
-ARI Stasi Server is a sophisticated telephony management system built on Asterisk's ARI (Asterisk REST Interface). It provides voice call handling, transcription, and PBX control capabilities. The system combines WebSockets, RTP, and Google Speech-to-Text integration to create a modern, feature-rich telephony solution.
+TranscriptARI is a sophisticated telephony management system built on Asterisk's ARI (Asterisk REST Interface). It provides voice call handling, transcription, and PBX control capabilities. The system combines WebSockets, RTP, and Google Speech-to-Text integration to create a modern, feature-rich telephony solution.
 
 ## ✨ Key Features
 
@@ -142,9 +143,9 @@ The system uses environment variables for configuration, including:
 
 ## 🔮 Future Improvements
 
-- 🔧 Enhanced error handling and retry mechanisms
-- 🖥️ UI improvements for monitoring and management
-- 🔊 Additional speech recognition providers
+- 🔧 Enhanced typing for typescript
+- 🖥️ WEB UI for for monitoring and management
+- 🔊 Additional speech recognition providers like self hosted whisper model or Scribe from ElevenLabs
 - 📊 Call analytics and reporting features
 
 ## 📜 License
