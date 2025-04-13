@@ -12,7 +12,7 @@
     "dev": "nvm use && npm run watch"
   },
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
     "@aws-sdk/client-transcribe-streaming": "^3.354.0",
     "@google-cloud/speech": "^7.0.1",

@@ -1,84 +1,166 @@
-# ARI Stasi Server - PBX Management System
+# 📞 ARI Stasi Server - PBX Management System
 
-## Overview
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.8.3-blue.svg)](https://www.typescriptlang.org/)
+[![Node.js](https://img.shields.io/badge/Node.js-23.x-green.svg)](https://nodejs.org/)
+[![Asterisk](https://img.shields.io/badge/Asterisk-ARI-red.svg)](https://wiki.asterisk.org/wiki/display/AST/Asterisk+REST+Interface+(ARI))
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-ARI Stasi Server is a telephony management system built on Asterisk's ARI (Asterisk REST Interface). It provides voice call handling, transcription, and PBX control capabilities. The system combines WebSockets, RTP, and Google Speech-to-Text integration to create a modern, feature-rich telephony solution.
+<div align="center">
+  <img src="https://asterisk.org/wp-content/uploads/asterisk-logo.png" alt="Asterisk Logo" width="200"/>
+  <br>
+  <em>Modern telephony management with speech recognition and WebSocket integration</em>
+</div>
 
-## Key Features
+---
 
-- **Call Management**: Handles incoming and outgoing calls through Asterisk PBX
-- **Speech-to-Text**: Real-time transcription of calls using Google Cloud Speech API
-- **Bridge Management**: Creates and manages voice bridges for connecting multiple channels
-- **Contact Recognition**: Supports voice-activated dialing using a contacts database
-- **External Media Channels**: Supports external media integration for advanced use cases
-- **WebSocket Interface**: Provides real-time updates and control via WebSockets
+## 📋 Overview
 
-## Architecture
+ARI Stasi Server is a sophisticated telephony management system built on Asterisk's ARI (Asterisk REST Interface). It provides voice call handling, transcription, and PBX control capabilities. The system combines WebSockets, RTP, and Google Speech-to-Text integration to create a modern, feature-rich telephony solution.
+
+## ✨ Key Features
+
+- 🔄 **Call Management** - Handles incoming and outgoing calls through Asterisk PBX
+- 🎙️ **Speech-to-Text** - Real-time transcription of calls using Google Cloud Speech API  
+- 🌉 **Bridge Management** - Creates and manages voice bridges for connecting multiple channels
+- 👥 **Contact Recognition** - Supports voice-activated dialing using a contacts database
+- 📡 **External Media Channels** - Supports external media integration for advanced use cases
+- 🔌 **WebSocket Interface** - Provides real-time updates and control via WebSockets
+
+## 🏗️ Architecture
 
 The system is built on TypeScript and Node.js with a modular architecture:
 
 ### Core Components
 
-1. **AriControllerServer**: The main controller that interfaces with Asterisk PBX
-   - Manages call flows, bridges, and DTMF input
-   - Handles Stasis application events (start, end)
-   - Provides WebSocket server for client connections
-   - Manages contact lookups for voice-activated dialing
+<details>
+<summary><b>🎮 AriControllerServer</b></summary>
+<p>
 
-2. **AriTranscriberServer**: Provides real-time speech transcription
-   - Connects to Google Cloud Speech API
-   - Processes RTP audio streams
-   - Transmits transcription results via WebSockets
-   - Supports customizable language and model settings
+The main controller that interfaces with Asterisk PBX:
+- Manages call flows, bridges, and DTMF input
+- Handles Stasis application events (start, end)
+- Provides WebSocket server for client connections
+- Manages contact lookups for voice-activated dialing
 
-3. **RTP UDP Server**: Handles the real-time audio streaming
-   - Processes incoming RTP packets from Asterisk
-   - Handles audio format conversion for transcription
+</p>
+</details>
 
-4. **Google Speech Provider**: Integration with Google's Speech-to-Text API
-   - Handles streaming transcription with automatic restarts
-   - Manages audio chunking for optimal performance
-   - Provides both interim and final transcription results
+<details>
+<summary><b>🔤 AriTranscriberServer</b></summary>
+<p>
 
-## Configuration
+Provides real-time speech transcription:
+- Connects to Google Cloud Speech API
+- Processes RTP audio streams
+- Transmits transcription results via WebSockets
+- Supports customizable language and model settings
+
+</p>
+</details>
+
+<details>
+<summary><b>📡 RTP UDP Server</b></summary>
+<p>
+
+Handles the real-time audio streaming:
+- Processes incoming RTP packets from Asterisk
+- Handles audio format conversion for transcription
+
+</p>
+</details>
+
+<details>
+<summary><b>🗣️ Google Speech Provider</b></summary>
+<p>
+
+Integration with Google's Speech-to-Text API:
+- Handles streaming transcription with automatic restarts
+- Manages audio chunking for optimal performance
+- Provides both interim and final transcription results
+
+</p>
+</details>
+
+## ⚙️ Configuration
 
 The system uses environment variables for configuration, including:
-- PBX server IP and credentials
-- WebSocket server ports
-- External host information
-- Transcription server settings
-- Phone number configurations
 
-## Getting Started
+| Category | Variables |
+|----------|-----------|
+| PBX | PBX IP address, login credentials |
+| WebSocket | Server ports, external host information |
+| Transcription | Language settings, model configuration |
+| Telephony | Provider settings, phone numbers |
+
+## 🚀 Getting Started
+
+<img src="https://cdn-icons-png.flaticon.com/512/4961/4961854.png" alt="Setup" width="50" align="right"/>
 
 1. Set up a FreePBX server - [FreePBX Server Installation and Configuration Guide](freepbx-setup.md)
 2. Configure environment variables in `.env` file (see `env.example` for reference)
 3. Set up Google Cloud credentials for speech recognition
 4. Configure contacts in `tools/contacts.json` for voice-activated dialing
-5. Start the system with: `npm start` or `npx ts-node -T core/manager.ts`
+5. Start the system with:
+   ```bash
+   npm start
+   ```
+   or
+   ```bash
+   npx ts-node -T core/manager.ts
+   ```
 
-## Use Cases
+## 💡 Use Cases
 
-- **Voice Call Center**: Handle incoming calls with transcription for record-keeping
-- **Automated Calling Systems**: Set up outbound call campaigns with speech recognition
-- **Voice-Activated Dialing**: Allow callers to speak names instead of dialing numbers
-- **Call Recording with Transcription**: Keep searchable records of call content
+<div style="display: flex; flex-wrap: wrap; gap: 20px;">
+  <div style="flex: 1; min-width: 250px;">
+    <h3>📞 Voice Call Center</h3>
+    <p>Handle incoming calls with transcription for record-keeping</p>
+  </div>
+  <div style="flex: 1; min-width: 250px;">
+    <h3>🤖 Automated Calling Systems</h3>
+    <p>Set up outbound call campaigns with speech recognition</p>
+  </div>
+  <div style="flex: 1; min-width: 250px;">
+    <h3>🗣️ Voice-Activated Dialing</h3>
+    <p>Allow callers to speak names instead of dialing numbers</p>
+  </div>
+  <div style="flex: 1; min-width: 250px;">
+    <h3>📝 Call Recording with Transcription</h3>
+    <p>Keep searchable records of call content</p>
+  </div>
+</div>
 
-## Dependencies
+## 📦 Dependencies
 
-- Asterisk PBX with ARI enabled
-- Node.js and TypeScript
-- Google Cloud Speech API credentials
+- **Asterisk PBX** with ARI enabled
+- **Node.js** and TypeScript
+- **Google Cloud Speech API** credentials
 - Various NPM packages including:
-  - ari-client
-  - @google-cloud/speech
-  - ws (WebSockets)
-  - express
-  - dotenv
+  ```
+  ari-client, @google-cloud/speech, ws, express, dotenv
+  ```
 
-## Future Improvements
+## 🔮 Future Improvements
 
-- Enhanced error handling and retry mechanisms
-- UI improvements for monitoring and management
-- Additional speech recognition providers
-- Call analytics and reporting features
+- 🔧 Enhanced error handling and retry mechanisms
+- 🖥️ UI improvements for monitoring and management
+- 🔊 Additional speech recognition providers
+- 📊 Call analytics and reporting features
+
+## 📜 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+The MIT License is a permissive license that allows anyone to:
+- Use the software for any purpose
+- Change the software to suit your needs
+- Share the software with anyone
+- Sell the software or build commercial software with it
+
+The only requirement is to include the original copyright notice and license in any copy of the software/source.
+
+---
+
+<div align="center">
+  <p>Built with ❤️ for modern telephony solutions</p>
+</div>
